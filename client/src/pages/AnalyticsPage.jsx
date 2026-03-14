@@ -3,10 +3,10 @@ import { useEffect, useState } from "react";
 import ParticlesBackground from "../components/ParticlesBackground";
 
 import {
-  ArcElement,
-  Chart as ChartJS,
-  Legend,
-  Tooltip
+    ArcElement,
+    Chart as ChartJS,
+    Legend,
+    Tooltip
 } from "chart.js";
 
 import { Pie } from "react-chartjs-2";
@@ -22,7 +22,7 @@ const AnalyticsPage = () => {
   const fetchComplaints = async()=>{
 
     const res = await axios.get(
-      "http://localhost:5000/api/complaint",
+      "https://civicai-intelligent-public-grievance.onrender.com/api/complaint",
       { headers:{ token } }
     );
 

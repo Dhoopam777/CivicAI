@@ -18,7 +18,7 @@ const AdminPage = () => {
   const fetchComplaints = async()=>{
 
     const res = await axios.get(
-      "http://localhost:5000/api/complaint",
+      "https://civicai-intelligent-public-grievance.onrender.com/api/complaint",
       { headers:{ token } }
     );
 
@@ -63,7 +63,7 @@ const AdminPage = () => {
   const updateStatus = async(id,status)=>{
 
     await axios.put(
-      `http://localhost:5000/api/complaint/${id}`,
+      `https://civicai-intelligent-public-grievance.onrender.com/api/complaint/${id}`,
       { status },
       { headers:{ token } }
     );

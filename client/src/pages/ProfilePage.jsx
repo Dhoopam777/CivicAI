@@ -30,7 +30,7 @@ const ProfilePage = () => {
 
     try {
       await axios.post(
-        "http://localhost:5000/api/complaint",
+        "https://civicai-intelligent-public-grievance.onrender.com/api/complaint",
         {
           city,
           state,
@@ -81,7 +81,7 @@ const ProfilePage = () => {
         const detectedAddress = res.data.display_name || "";
 
         await axios.post(
-          "http://localhost:5000/api/complaint",
+          "https://civicai-intelligent-public-grievance.onrender.com/api/complaint",
           {
             city: detectedCity,
             state: detectedState,
@@ -106,7 +106,7 @@ const ProfilePage = () => {
   };
 
   const fetchComplaints = async () => {
-    const res = await axios.get("http://localhost:5000/api/complaint/my", {
+    const res = await axios.get("https://civicai-intelligent-public-grievance.onrender.com/api/complaint/my", {
       headers: { token },
     });
 

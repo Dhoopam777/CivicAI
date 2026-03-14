@@ -19,7 +19,7 @@ const RegisterPage = () => {
     try{
 
       const res = await axios.post(
-        "http://localhost:5000/api/auth/signup",
+        "https://civicai-intelligent-public-grievance.onrender.com/api/auth/signup",
         {
           fullName:name,
           email,
