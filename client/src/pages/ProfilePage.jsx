@@ -3,42 +3,45 @@ import { useEffect, useState } from "react";
 import ParticlesBackground from "../components/ParticlesBackground";
 
 const ProfilePage = () => {
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
-  const [address, setAddress] = useState("");
-  const [description, setDescription] = useState("");
 
-  const [quickDesc, setQuickDesc] = useState("");
-  const [image, setImage] = useState("");
+  const [city,setCity] = useState("");
+  const [state,setState] = useState("");
+  const [address,setAddress] = useState("");
+  const [description,setDescription] = useState("");
 
-  const [complaints, setComplaints] = useState([]);
+  const [quickDesc,setQuickDesc] = useState("");
+  const [image,setImage] = useState("");
+
+  const [complaints,setComplaints] = useState([]);
 
   const token = localStorage.getItem("token");
 
+
   const handleImage = (file) => {
+
+    if(!file) return;
+
     const reader = new FileReader();
 
     reader.readAsDataURL(file);
 
-    reader.onloadend = () => {
+    reader.onloadend = ()=>{
       setImage(reader.result);
     };
+
   };
 
-  const submitManualComplaint = async (e) => {
+
+  const submitManualComplaint = async(e)=>{
+
     e.preventDefault();
 
-    try {
+    try{
+
       await axios.post(
         "https://civicai-intelligent-public-grievance.onrender.com/api/complaint",
-        {
-          city,
-          state,
-          address,
-          description,
-          image,
-        },
-        { headers: { token } }
+        { city,state,address,description,image },
+        { headers:{ token } }
       );
 
       alert("Complaint submitted");
@@ -50,20 +53,26 @@ const ProfilePage = () => {
       setImage("");
 
       fetchComplaints();
-    } catch (err) {
+
+    }catch(err){
       console.error(err);
       alert("Submission failed");
     }
+
   };
 
-  const quickLocationSubmit = () => {
-    if (!quickDesc) {
+
+  const quickLocationSubmit = ()=>{
+
+    if(!quickDesc){
       alert("Please describe the issue");
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-      try {
+    navigator.geolocation.getCurrentPosition(async(pos)=>{
+
+      try{
+
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
 
@@ -71,14 +80,16 @@ const ProfilePage = () => {
           `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
         );
 
-        const addressData = res.data.address;
+        const addressData = res.data?.address || {};
 
         const detectedCity =
-          addressData.city || addressData.town || addressData.village || "";
+          addressData.city ||
+          addressData.town ||
+          addressData.village ||
+          "";
 
         const detectedState = addressData.state || "";
-
-        const detectedAddress = res.data.display_name || "";
+        const detectedAddress = res.data?.display_name || "";
 
         await axios.post(
           "https://civicai-intelligent-public-grievance.onrender.com/api/complaint",
@@ -87,9 +98,9 @@ const ProfilePage = () => {
             state: detectedState,
             address: detectedAddress,
             description: quickDesc,
-            image,
+            image
           },
-          { headers: { token } }
+          { headers:{ token } }
         );
 
         alert("Complaint submitted using location");
@@ -98,47 +109,62 @@ const ProfilePage = () => {
         setImage("");
 
         fetchComplaints();
-      } catch (err) {
+
+      }catch(err){
         console.error(err);
         alert("Submission failed");
       }
+
     });
+
   };
 
-  const fetchComplaints = async () => {
-    try {
+
+  const fetchComplaints = async()=>{
+
+    try{
+
       const res = await axios.get(
         "https://civicai-intelligent-public-grievance.onrender.com/api/complaint/my",
-        { headers: { token } }
+        { headers:{ token } }
       );
 
-      const data = Array.isArray(res.data.complaints)
-        ? res.data.complaints
-        : [];
+      const list =
+        Array.isArray(res.data?.complaints)
+          ? res.data.complaints
+          : [];
 
-      setComplaints(data);
-    } catch (err) {
+      setComplaints(list);
+
+    }catch(err){
       console.error(err);
       setComplaints([]);
     }
+
   };
 
-  useEffect(() => {
-    fetchComplaints();
-  }, []);
 
-  return (
+  useEffect(()=>{
+    fetchComplaints();
+  },[]);
+
+
+
+  return(
     <>
-      <ParticlesBackground />
+      <ParticlesBackground/>
 
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-black text-white p-8">
+
         <h1 className="text-4xl font-bold text-center mb-10">
           Civic Complaint Portal
         </h1>
 
+
         {/* MANUAL FORM */}
 
         <div className="max-w-xl mx-auto glass p-8 rounded-xl shadow-xl mb-10">
+
           <h2 className="text-xl font-semibold mb-4 text-center">
             Manual Complaint Submission
           </h2>
@@ -147,37 +173,38 @@ const ProfilePage = () => {
             onSubmit={submitManualComplaint}
             className="flex flex-col gap-3"
           >
+
             <input
               placeholder="City"
               value={city}
-              onChange={(e) => setCity(e.target.value)}
+              onChange={(e)=>setCity(e.target.value)}
               className="p-3 rounded-lg text-black"
             />
 
             <input
               placeholder="State"
               value={state}
-              onChange={(e) => setState(e.target.value)}
+              onChange={(e)=>setState(e.target.value)}
               className="p-3 rounded-lg text-black"
             />
 
             <input
               placeholder="Address"
               value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              onChange={(e)=>setAddress(e.target.value)}
               className="p-3 rounded-lg text-black"
             />
 
             <textarea
               placeholder="Describe the issue"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e)=>setDescription(e.target.value)}
               className="p-3 rounded-lg text-black"
             />
 
             <input
               type="file"
-              onChange={(e) => handleImage(e.target.files[0])}
+              onChange={(e)=>handleImage(e.target.files[0])}
             />
 
             <button
@@ -186,12 +213,16 @@ const ProfilePage = () => {
             >
               Submit Complaint
             </button>
+
           </form>
+
         </div>
 
-        {/* QUICK LOCATION FORM */}
+
+        {/* QUICK LOCATION */}
 
         <div className="max-w-xl mx-auto glass p-8 rounded-xl shadow-xl mb-10">
+
           <h2 className="text-xl font-semibold mb-4 text-center">
             Quick Report (Use My Location)
           </h2>
@@ -199,13 +230,13 @@ const ProfilePage = () => {
           <textarea
             placeholder="Describe the issue"
             value={quickDesc}
-            onChange={(e) => setQuickDesc(e.target.value)}
+            onChange={(e)=>setQuickDesc(e.target.value)}
             className="p-3 rounded-lg text-black w-full mb-3"
           />
 
           <input
             type="file"
-            onChange={(e) => handleImage(e.target.files[0])}
+            onChange={(e)=>handleImage(e.target.files[0])}
             className="mb-4"
           />
 
@@ -215,16 +246,20 @@ const ProfilePage = () => {
           >
             📍 Use My Location & Submit
           </button>
+
         </div>
+
 
         {/* COMPLAINT LIST */}
 
         <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {(Array.isArray(complaints) ? complaints : []).map((c) => (
+
+          {(Array.isArray(complaints) ? complaints : []).map((c)=>(
             <div
               key={c._id}
               className="glass card-hover p-6 rounded-xl shadow-lg"
             >
+
               <h3 className="font-bold mb-2">{c.category}</h3>
 
               <p>{c.description}</p>
@@ -241,14 +276,19 @@ const ProfilePage = () => {
                 <img
                   src={c.image}
                   className="mt-3 rounded-lg"
+                  alt="complaint"
                 />
               )}
+
             </div>
           ))}
+
         </div>
+
       </div>
     </>
   );
+
 };
 
 export default ProfilePage;
