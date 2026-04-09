@@ -31,7 +31,6 @@ router.post(
 
 router.get(
   "/",
-  protectRoute,
   getAllComplaints
 );
 
@@ -43,19 +42,16 @@ router.get(
 
 router.put(
   "/:id",
-  protectRoute,
   updateComplaintStatus
 );
 
 router.put(
   "/:id/upvote",
-  protectRoute,
   upvoteComplaint
 );
 
 router.post(
   "/:id/comment",
-  protectRoute,
   addComment
 );
 
