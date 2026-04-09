@@ -47,12 +47,14 @@ const AdminPage = () => {
       setIsFetching(false);
     } catch (error) {
       console.error("Failed to fetch complaints:", error);
-      // Force retry on ANY error during initial load (Render might throw 502s while booting)
-      if (retryCount < 15) {
+      
+      const isWakeupError = !error.response || error.response.status === 502 || error.response.status === 503;
+
+      if (isWakeupError && retryCount < 15) {
         setServerWaking(true);
         setTimeout(() => fetchComplaints(retryCount + 1), 3000);
       } else {
-        toast.error("Server took too long to wake up. Please refresh.");
+        toast.error(error.response?.data?.message || "Database error. Check Render backend logs.");
         setIsFetching(false);
         setServerWaking(false);
       }

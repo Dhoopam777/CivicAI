@@ -1,6 +1,7 @@
 import cloudinary from "../config/cloudinary.js";
 import geocoder from "../config/geocoder.js";
 import Complaint from "../models/Complaint.js";
+import User from "../models/User.js";
 
 export const createComplaint = async (req, res) => {
   try {
@@ -155,6 +156,7 @@ export const getAllComplaints = async (req, res) => {
 
   } catch (err) {
 
+    console.error("GET ALL COMPLAINTS ERROR:", err);
     res.status(500).json({
       message: "Failed to fetch complaints"
     });
@@ -177,6 +179,7 @@ export const getMyComplaints = async (req, res) => {
 
   } catch (err) {
 
+    console.error("GET MY COMPLAINTS ERROR:", err);
     res.status(500).json({
       message: "Failed to fetch complaints"
     });

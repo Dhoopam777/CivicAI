@@ -87,7 +87,9 @@ const MapPage = () => {
       setServerWaking(false);
     } catch (err) {
       console.error("Fetch error:", err);
-      if (retryCount < 15) {
+      const isWakeupError = !err.response || err.response.status === 502 || err.response.status === 503;
+
+      if (isWakeupError && retryCount < 15) {
         setServerWaking(true);
         setTimeout(() => fetchComplaints(retryCount + 1), 3000);
       } else {
