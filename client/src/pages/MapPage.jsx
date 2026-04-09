@@ -68,9 +68,10 @@ const MapPage = () => {
     setIsLoading(true);
 
     try {
+      const headers = (token && token !== "null") ? { token } : {};
       const res = await axios.get(
         `${API_URL}/api/complaint`,
-        { headers: { token } },
+        { headers }
       );
 
       // ✅ FIX: ensure array
@@ -119,7 +120,8 @@ const MapPage = () => {
   const handleUpvote = async (id) => {
     const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
     try {
-      await axios.put(`${API_URL}/api/complaint/${id}/upvote`, {}, { headers: { token } });
+      const headers = (token && token !== "null") ? { token } : {};
+      await axios.put(`${API_URL}/api/complaint/${id}/upvote`, {}, { headers });
       // Refresh the map data to show the new upvote count
       fetchComplaints();
     } catch (err) {

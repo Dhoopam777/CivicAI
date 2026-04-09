@@ -29,7 +29,7 @@ const AdminPage = () => {
 
     try {
       // Safely pass headers only if token exists
-      const headers = token ? { token } : {};
+      const headers = (token && token !== "null") ? { token } : {};
 
       const res = await axios.get(
         `${API_URL}/api/complaint`,
@@ -43,7 +43,11 @@ const AdminPage = () => {
       setFiltered(data);
     } catch (error) {
       console.error("Failed to fetch complaints:", error);
-      toast.error("Failed to connect to the database.");
+      if (error.message === "Network Error") {
+        toast.warning("Waking up the server... Please wait a moment and refresh.");
+      } else {
+        toast.error("Failed to fetch data. Server might be waking up.");
+      }
     }
   };
 
@@ -85,7 +89,7 @@ const AdminPage = () => {
     const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
     try {
-      const headers = token ? { token } : {};
+      const headers = (token && token !== "null") ? { token } : {};
       await axios.put(
         `${API_URL}/api/complaint/${id}`,
         { status },
@@ -135,7 +139,7 @@ const AdminPage = () => {
 
     const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
     try {
-      const headers = token ? { token } : {};
+      const headers = (token && token !== "null") ? { token } : {};
       const { data } = await axios.post(
         `${API_URL}/api/complaint/${selected._id}/comment`,
         { text: newComment },
