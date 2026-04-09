@@ -115,7 +115,8 @@ const ProfilePage = () => {
             state: detectedState,
             address: detectedAddress,
             description: quickDesc,
-            image
+            image,
+            location: { lat, lng }
           },
           { headers: { token } }
         );

@@ -27,15 +27,17 @@ const AnalyticsPage = () => {
 
     try {
       const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      const headers = (token && token !== "null") ? { token } : {};
+
       const res = await axios.get(
         `${API_URL}/api/complaint`,
-        { headers: { token } }
+        { headers }
       );
 
       const data = Array.isArray(res.data) ? res.data : (res.data?.complaints || []);
       setComplaints(data);
     } catch (err) {
-      console.error(err);
+      console.error("Analytics fetch failed:", err);
     }
 
   };

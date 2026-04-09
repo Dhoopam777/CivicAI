@@ -14,6 +14,8 @@ const AdminPage = () => {
   const [priority, setPriority] = useState("All");
   const [search, setSearch] = useState("");
   const [newComment, setNewComment] = useState("");
+  const [isFetching, setIsFetching] = useState(true);
+  const [serverWaking, setServerWaking] = useState(false);
 
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
@@ -24,8 +26,9 @@ const AdminPage = () => {
     }
   }, [navigate]);
 
-  const fetchComplaints = async () => {
+  const fetchComplaints = async (retryCount = 0) => {
     const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    if (retryCount === 0) setIsFetching(true);
 
     try {
       // Safely pass headers only if token exists
@@ -37,16 +40,21 @@ const AdminPage = () => {
       );
 
       const data = Array.isArray(res.data) ? res.data : (res.data?.complaints || []);
-      if (data.length === 0) toast.info("No complaints found in database.");
 
       setComplaints(data);
       setFiltered(data);
+      setServerWaking(false);
+      setIsFetching(false);
     } catch (error) {
       console.error("Failed to fetch complaints:", error);
-      if (error.message === "Network Error") {
-        toast.warning("Waking up the server... Please wait a moment and refresh.");
+      // Force retry on ANY error during initial load (Render might throw 502s while booting)
+      if (retryCount < 15) {
+        setServerWaking(true);
+        setTimeout(() => fetchComplaints(retryCount + 1), 3000);
       } else {
-        toast.error("Failed to fetch data. Server might be waking up.");
+        toast.error("Server took too long to wake up. Please refresh.");
+        setIsFetching(false);
+        setServerWaking(false);
       }
     }
   };
@@ -250,65 +258,87 @@ const AdminPage = () => {
 
             <tbody>
 
-              {(Array.isArray(filtered) ? filtered : []).map((c) => (
-
-                <tr
-                  key={c._id}
-                  className="border-b border-gray-700 odd:bg-gray-900/50 even:bg-gray-800/50 hover:bg-gray-700/60 transition-colors duration-200"
-                >
-
-                  <td className="p-4 font-medium">{c.city}</td>
-
-                  <td className="p-4">{c.category}</td>
-
-                  <td className="p-4">
-                    <span className={`px-2 py-1 rounded-md text-xs font-bold ${c.priority === 'High' ? 'text-red-400 bg-red-400/10 border border-red-400/20' : c.priority === 'Medium' ? 'text-yellow-400 bg-yellow-400/10 border border-yellow-400/20' : 'text-green-400 bg-green-400/10 border border-green-400/20'}`}>{c.priority}</span>
+              {isFetching ? (
+                <tr>
+                  <td colSpan="6" className="p-8 text-center text-gray-400">
+                    {serverWaking ? (
+                      <span className="flex items-center justify-center gap-3 animate-pulse text-amber-400 font-semibold">
+                        <div className="w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
+                        Waking up the Render server... This may take up to 60 seconds.
+                      </span>
+                    ) : (
+                      <span className="flex items-center justify-center gap-3 font-semibold text-blue-400">
+                        <div className="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                        Loading complaints...
+                      </span>
+                    )}
                   </td>
+                </tr>
+              ) : filtered.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="p-8 text-center text-gray-400 font-medium">No complaints found in the database.</td>
+                </tr>
+              ) : (
+                (Array.isArray(filtered) ? filtered : []).map((c) => (
 
-                  <td className="p-4">
+                  <tr
+                    key={c._id}
+                    className="border-b border-gray-700 odd:bg-gray-900/50 even:bg-gray-800/50 hover:bg-gray-700/60 transition-colors duration-200"
+                  >
 
-                    <span className={`text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm ${badgeColor(c.status)}`}>
-                      {c.status}
-                    </span>
+                    <td className="p-4 font-medium">{c.city}</td>
 
-                  </td>
+                    <td className="p-4">{c.category}</td>
 
-                  <td className="p-4 text-center">
+                    <td className="p-4">
+                      <span className={`px-2 py-1 rounded-md text-xs font-bold ${c.priority === 'High' ? 'text-red-400 bg-red-400/10 border border-red-400/20' : c.priority === 'Medium' ? 'text-yellow-400 bg-yellow-400/10 border border-yellow-400/20' : 'text-green-400 bg-green-400/10 border border-green-400/20'}`}>{c.priority}</span>
+                    </td>
 
-                    {c.image && (
+                    <td className="p-4">
+
+                      <span className={`text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm ${badgeColor(c.status)}`}>
+                        {c.status}
+                      </span>
+
+                    </td>
+
+                    <td className="p-4 text-center">
+
+                      {c.image && (
+
+                        <button
+                          onClick={() => setSelected(c)}
+                          className="bg-transparent border border-blue-400 text-blue-400 text-xs px-3 py-1 rounded-full hover:bg-blue-400 hover:text-white transition"
+                        >
+                          View
+                        </button>
+
+                      )}
+
+                    </td>
+
+                    <td className="p-4 flex justify-center gap-2">
 
                       <button
-                        onClick={() => setSelected(c)}
-                        className="bg-transparent border border-blue-400 text-blue-400 text-xs px-3 py-1 rounded-full hover:bg-blue-400 hover:text-white transition"
+                        onClick={() => updateStatus(c._id, "In Progress")}
+                        className="bg-amber-500 text-xs px-3 py-1 rounded shadow-md text-white hover:bg-amber-600 transition-colors"
                       >
-                        View
+                        Start
                       </button>
 
-                    )}
+                      <button
+                        onClick={() => updateStatus(c._id, "Resolved")}
+                        className="bg-emerald-500 text-xs px-3 py-1 rounded shadow-md text-white hover:bg-emerald-600 transition-colors"
+                      >
+                        Resolve
+                      </button>
 
-                  </td>
+                    </td>
 
-                  <td className="p-4 flex justify-center gap-2">
+                  </tr>
 
-                    <button
-                      onClick={() => updateStatus(c._id, "In Progress")}
-                      className="bg-amber-500 text-xs px-3 py-1 rounded shadow-md text-white hover:bg-amber-600 transition-colors"
-                    >
-                      Start
-                    </button>
-
-                    <button
-                      onClick={() => updateStatus(c._id, "Resolved")}
-                      className="bg-emerald-500 text-xs px-3 py-1 rounded shadow-md text-white hover:bg-emerald-600 transition-colors"
-                    >
-                      Resolve
-                    </button>
-
-                  </td>
-
-                </tr>
-
-              ))}
+                ))
+              )}
 
             </tbody>
 

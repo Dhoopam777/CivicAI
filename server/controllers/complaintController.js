@@ -5,7 +5,7 @@ import Complaint from "../models/Complaint.js";
 export const createComplaint = async (req, res) => {
   try {
 
-    const { city, state, address, description, image } = req.body;
+    const { city, state, address, description, image, location: frontendLocation } = req.body;
 
     if (!city || !state || !address || !description) {
       return res.status(400).json({
@@ -15,19 +15,21 @@ export const createComplaint = async (req, res) => {
 
     /* ---------- GEOCODING ---------- */
 
-    let location = { lat: 0, lng: 0 };
+    let location = frontendLocation || { lat: 0, lng: 0 };
 
-    try {
-      const geo = await geocoder.geocode(`${city} ${state}`);
+    if (!frontendLocation) {
+      try {
+        const geo = await geocoder.geocode(`${city} ${state}`);
 
-      if (geo.length > 0) {
-        location = {
-          lat: geo[0].latitude,
-          lng: geo[0].longitude
-        };
+        if (geo.length > 0) {
+          location = {
+            lat: geo[0].latitude,
+            lng: geo[0].longitude
+          };
+        }
+      } catch (err) {
+        console.log("Geocoder error:", err.message);
       }
-    } catch (err) {
-      console.log("Geocoder error:", err.message);
     }
 
     /* ---------- IMAGE UPLOAD ---------- */

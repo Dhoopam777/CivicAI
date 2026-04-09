@@ -60,12 +60,13 @@ const MapPage = () => {
   const [heatmap, setHeatmap] = useState(true);
   const [markers, setMarkers] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
+  const [serverWaking, setServerWaking] = useState(false);
 
   const token = localStorage.getItem("token");
 
-  const fetchComplaints = async () => {
+  const fetchComplaints = async (retryCount = 0) => {
     const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-    setIsLoading(true);
+    if (retryCount === 0) setIsLoading(true);
 
     try {
       const headers = (token && token !== "null") ? { token } : {};
@@ -82,13 +83,18 @@ const MapPage = () => {
       setComplaints(data);
       setFiltered(data);
 
-      console.log("API DATA:", data);
+      setIsLoading(false);
+      setServerWaking(false);
     } catch (err) {
       console.error("Fetch error:", err);
-      setComplaints([]);
-      setFiltered([]);
-    } finally {
-      setIsLoading(false);
+      if (retryCount < 15) {
+        setServerWaking(true);
+        setTimeout(() => fetchComplaints(retryCount + 1), 3000);
+      } else {
+        setComplaints([]);
+        setFiltered([]);
+        setIsLoading(false);
+      }
     }
   };
 
@@ -198,8 +204,11 @@ const MapPage = () => {
 
         <div className="max-w-6xl mx-auto rounded-3xl overflow-hidden shadow-2xl border border-gray-300 dark:border-gray-600 animate-slideUp relative">
           {isLoading && (
-            <div className="absolute inset-0 bg-black/50 z-10 flex items-center justify-center">
-              <p className="text-white text-xl font-bold animate-pulse">Loading Map Data...</p>
+            <div className="absolute inset-0 bg-black/70 z-10 flex flex-col items-center justify-center backdrop-blur-sm">
+              <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+              <p className="text-white text-xl font-bold animate-pulse">
+                {serverWaking ? "Waking up the Render server... (up to 45s)" : "Loading Map Data..."}
+              </p>
             </div>
           )}
           <MapContainer
