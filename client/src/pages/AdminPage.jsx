@@ -181,17 +181,17 @@ const AdminPage = () => {
 
         {/* FILTERS */}
 
-        <div className="flex flex-wrap gap-4 justify-center mb-8">
+        <div className="flex flex-wrap gap-4 justify-center mb-8 bg-gray-900/60 backdrop-blur-xl border border-gray-600 p-4 rounded-2xl shadow-lg max-w-5xl mx-auto">
 
           <input
             placeholder="Search complaints..."
             onChange={(e) => setSearch(e.target.value)}
-            className="px-4 py-2 rounded-xl bg-gray-800/80 border border-gray-500 text-white placeholder-gray-400 focus:border-white focus:ring-1 focus:ring-white outline-none transition-all backdrop-blur-md"
+            className="px-4 py-2 rounded-xl bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 outline-none transition-all w-full md:w-auto flex-grow"
           />
 
           <select
             onChange={(e) => setCategory(e.target.value)}
-            className="px-4 py-2 rounded-xl bg-gray-800/80 border border-gray-500 text-white outline-none focus:border-white focus:ring-1 focus:ring-white transition-all backdrop-blur-md"
+            className="px-4 py-2 rounded-xl bg-gray-800 border border-gray-600 text-white outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-all cursor-pointer"
           >
             <option className="text-black" value="All">All Categories</option>
             <option className="text-black" value="Road Issue">Road Issue</option>
@@ -202,7 +202,7 @@ const AdminPage = () => {
 
           <select
             onChange={(e) => setStatus(e.target.value)}
-            className="px-4 py-2 rounded-xl bg-gray-800/80 border border-gray-500 text-white outline-none focus:border-white focus:ring-1 focus:ring-white transition-all backdrop-blur-md"
+            className="px-4 py-2 rounded-xl bg-gray-800 border border-gray-600 text-white outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-all cursor-pointer"
           >
             <option className="text-black" value="All">All Status</option>
             <option className="text-black" value="New">New</option>
@@ -212,7 +212,7 @@ const AdminPage = () => {
 
           <select
             onChange={(e) => setPriority(e.target.value)}
-            className="px-4 py-2 rounded-xl bg-gray-800/80 border border-gray-500 text-white outline-none focus:border-white focus:ring-1 focus:ring-white transition-all backdrop-blur-md"
+            className="px-4 py-2 rounded-xl bg-gray-800 border border-gray-600 text-white outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-all cursor-pointer"
           >
             <option className="text-black" value="All">All Priority</option>
             <option className="text-black" value="High">High</option>

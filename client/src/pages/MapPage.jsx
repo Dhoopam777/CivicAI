@@ -23,13 +23,21 @@ const HeatmapLayer = ({ data, enabled }) => {
     const points = Array.isArray(data)
       ? data
         .filter((c) => c.location)
-        .map((c) => [c.location.lat, c.location.lng, 0.6])
+        .map((c) => [c.location.lat, c.location.lng, 1]) // Max intensity for vibrant colors
       : [];
 
     const heat = L.heatLayer(points, {
-      radius: 25,
-      blur: 20,
+      radius: 35, // Larger radius for better visibility
+      blur: 25,
       maxZoom: 17,
+      max: 1.0,
+      gradient: {
+        0.4: 'blue',
+        0.6: 'cyan',
+        0.7: 'lime',
+        0.8: 'yellow',
+        1.0: 'red'
+      }
     });
 
     heat.addTo(map);
